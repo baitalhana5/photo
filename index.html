@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>بيت الهنا</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- شاشة الدخول -->
+<section id="login" class="hidden">
+  <h1>بيت الهنا ❤️</h1>
+  <p>صور عائلتنا، لأفراد العائلة فقط.</p>
+  <div id="gbtn"></div>
+  <p id="loginMsg" class="msg" role="alert"></p>
+</section>
+
+<!-- المعرض -->
+<section id="app" class="hidden">
+  <header>
+    <h1>عائلتنا ❤️</h1>
+    <div class="user">
+      <img id="avatar" alt="" referrerpolicy="no-referrer" hidden>
+      <span>مرحبًا، <b id="uname"></b></span>
+      <button id="logout" type="button">تسجيل الخروج</button>
+    </div>
+  </header>
+  <main>
+    <h2>📷 صور العائلة</h2>
+    <div id="status" class="msg" role="status"></div>
+    <div id="grid"></div>
+  </main>
+</section>
+
+<!-- عارض الصور -->
+<div id="lb" class="hidden" role="dialog" aria-modal="true">
+  <button id="lbClose" type="button" aria-label="إغلاق">✕</button>
+  <button id="prev" type="button" aria-label="السابقة">›</button>
+  <button id="next" type="button" aria-label="التالية">‹</button>
+  <img id="lbImg" alt="">
+  <div id="lbSpin" class="spin hidden"></div>
+  <p id="lbErr" class="msg hidden">تعذّر تحميل هذه الصورة.</p>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js" defer></script>
+</body>
+</html>
