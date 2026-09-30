@@ -1,45 +1,52 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>بيت الهنا</title>
-<link rel="stylesheet" href="style.css">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="house" viewBox="0 0 64 64">
+    <path d="M10 31 32 12l22 19v21a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" style="fill:var(--accent)"/>
+    <path d="M32 47S22 41 22 34.500a5.200 5.200 0 0 1 10-2 5.200 5.200 0 0 1 10 2C42 41 32 47 32 47z" style="fill:var(--sun)"/>
+  </symbol>
+</svg>
+
 <!-- شاشة الدخول -->
 <section id="login" class="hidden">
   <div class="card">
-    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
-      <path d="M10 31 32 12l22 19v21a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" fill="#2d7a68"/>
-      <path d="M32 47S22 41 22 34.500a5.200 5.200 0 0 1 10-2 5.200 5.200 0 0 1 10 2C42 41 32 47 32 47z" fill="#f4c15d"/>
-    </svg>
+    <svg class="logo" aria-hidden="true"><use href="#house"/></svg>
     <h1>بيت الهنا</h1>
     <p class="sub">ذكريات العائلة في مكان واحد</p>
     <div id="gbtn"></div>
     <p id="loginMsg" class="msg" role="alert"></p>
-    <p class="hint">🔒 الدخول لأفراد العائلة المسموح لهم فقط</p>
+    <p class="hint">الدخول لأفراد العائلة المسموح لهم فقط</p>
+    <button class="btn theme-btn" type="button" aria-label="تبديل الوضع الداكن والفاتح">داكن</button>
   </div>
 </section>
 
 <!-- المعرض -->
 <section id="app" class="hidden">
   <header>
-    <div class="brand">🏡 عائلتنا ❤️</div>
+    <div class="brand"><svg class="mark" aria-hidden="true"><use href="#house"/></svg><span>بيتنا</span></div>
     <div class="user">
       <img id="avatar" alt="" referrerpolicy="no-referrer" hidden>
-      <button id="logout" type="button">تسجيل الخروج</button>
+      <button class="btn theme-btn" type="button" aria-label="تبديل الوضع الداكن والفاتح">داكن</button>
+      <button id="logout" class="btn" type="button">تسجيل الخروج</button>
     </div>
   </header>
   <main>
     <div class="hello">
-      <h2>مرحبًا، <span id="uname"></span> 👋</h2>
-      <p>📷 صور العائلة</p>
+      <h2>مرحبًا، <span id="uname"></span></h2>
+      <p>صور العائلة</p>
     </div>
     <div id="status" class="msg" role="status"></div>
     <div id="grid"></div>
@@ -48,9 +55,9 @@
 
 <!-- عارض الصور -->
 <div id="lb" class="hidden" role="dialog" aria-modal="true">
-  <button id="lbClose" type="button" aria-label="إغلاق">✕</button>
-  <button id="prev" type="button" aria-label="السابقة">›</button>
-  <button id="next" type="button" aria-label="التالية">‹</button>
+  <button id="lbClose" type="button" aria-label="إغلاق"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <button id="prev" type="button" aria-label="السابقة"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  <button id="next" type="button" aria-label="التالية"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
   <span id="lbCount"></span>
   <img id="lbImg" alt="">
   <div id="lbSpin" class="spin hidden"></div>

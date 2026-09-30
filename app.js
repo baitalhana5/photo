@@ -47,7 +47,7 @@
     sessionStorage.removeItem("t");
     photos = [];
     queue.length = 0;
-    $("grid").innerHTML = "";
+    clearGrid();
     show("app", false);
     show("lb", false);
     show("login", true);
@@ -63,6 +63,7 @@
   function setStatus(text, retry) {
     const s = $("status");
     s.textContent = text;
+    if (text.endsWith("…")) { const d = document.createElement("i"); d.className = "dot"; s.prepend(d); }
     if (retry) {
       const b = document.createElement("button");
       b.textContent = "إعادة المحاولة";
@@ -75,7 +76,7 @@
   async function start() {
     show("login", false);
     show("app", true);
-    $("grid").innerHTML = "";
+    clearGrid();
     setStatus("جارٍ التحميل…");
     try {
       const r = await api({ action: "list" });
@@ -111,32 +112,66 @@
   async function loadThumb(img) {
     try {
       const r = await api({ action: "thumb", id: img.dataset.id });
+      img.onload = () => {
+        img.parentElement.style.aspectRatio = img.naturalWidth + " / " + img.naturalHeight;
+        img.classList.add("ok");
+      };
       img.src = r.src;
-      img.classList.add("ok");
     } catch (e) {
       if (e === "expired" || e === "forbidden") return showLogin(MSG[e]);
-      img.parentElement.classList.add("bad");
+      img.closest(".cell").classList.add("bad");
     }
   }
 
-  function render() {
+  let cells = [];
+  let nCols = 0;
+  const colCount = () => (innerWidth >= 1000 ? 4 : innerWidth >= 700 ? 3 : 2);
+
+  function clearGrid() { cells = []; nCols = 0; $("grid").innerHTML = ""; }
+
+  // كل صورة تُوضع في أقصر عمود، وتحتفظ بنسبتها الأصلية (بدون قص)
+  function layout() {
+    const n = colCount();
+    if (n === nCols) return;
+    nCols = n;
     const g = $("grid");
     g.innerHTML = "";
+    const cols = [], hs = [];
+    for (let i = 0; i < n; i++) {
+      const c = document.createElement("div");
+      c.className = "col";
+      g.append(c); cols.push(c); hs.push(0);
+    }
+    cells.forEach((c) => {
+      const k = hs.indexOf(Math.min(...hs));
+      cols[k].append(c.el);
+      hs[k] += 1 / c.r;
+    });
+  }
+
+  function render() {
+    clearGrid();
     if (!photos.length) return setStatus(MSG.empty);
     setStatus("");
     photos.forEach((p, i) => {
+      const r = p.w && p.h ? p.w / p.h : 4 / 3;
       const b = document.createElement("button");
       b.className = "cell";
       b.type = "button";
       b.setAttribute("aria-label", "صورة " + (i + 1));
+      const ph = document.createElement("span");
+      ph.className = "ph";
+      ph.style.aspectRatio = r;
       const im = document.createElement("img");
       im.dataset.id = p.id;
       im.alt = "";
-      b.append(im);
+      ph.append(im);
+      b.append(ph);
       b.onclick = () => openLb(i);
-      g.append(b);
+      cells.push({ el: b, r });
       io.observe(im);
     });
+    layout();
   }
 
   // ---------- Lightbox ----------
@@ -168,9 +203,23 @@
 
   const go = (d) => openLb((cur + d + photos.length) % photos.length);
 
+  // ---------- الوضع الداكن ----------
+  function applyTheme(t) {
+    document.documentElement.dataset.theme = t;
+    document.querySelectorAll(".theme-btn").forEach((b) => { b.textContent = t === "dark" ? "فاتح" : "داكن"; });
+  }
+  function toggleTheme() {
+    const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    try { localStorage.setItem("theme", t); } catch {}
+    applyTheme(t);
+  }
+
   // ---------- تهيئة ----------
   function init() {
     $("logout").onclick = () => { window.google?.accounts.id.disableAutoSelect(); showLogin(); };
+    document.querySelectorAll(".theme-btn").forEach((b) => { b.onclick = toggleTheme; });
+    applyTheme(document.documentElement.dataset.theme || "light");
+    window.addEventListener("resize", layout);
     $("lbClose").onclick = closeLb;
     $("prev").onclick = () => go(-1);
     $("next").onclick = () => go(1);

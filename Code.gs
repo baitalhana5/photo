@@ -77,15 +77,27 @@ function isAllowed_(email) {
 
 // ---------- 3) قراءة الصور من Drive ----------
 function listPhotos_() {
-  const q = 'trashed=false and (' + MIMES.map(function (m) { return "mimeType='" + m + "'"; }).join(' or ') + ')';
+  const auth = { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() };
+  const mime = MIMES.map(function (m) { return "mimeType='" + m + "'"; }).join(' or ');
+  const fields = 'nextPageToken,files(id,name,createdTime,imageMediaMetadata(width,height,rotation))';
   const out = [];
   (function walk(folder, name) {
-    const files = folder.searchFiles(q);
-    while (files.hasNext()) {
-      const f = files.next();
-      // folder: جاهز لميزة "العرض حسب المجلد" لاحقًا
-      out.push({ id: f.getId(), name: f.getName(), date: f.getDateCreated().getTime(), folder: name });
-    }
+    let page = '';
+    do {
+      const url = 'https://www.googleapis.com/drive/v3/files?pageSize=1000&fields=' + encodeURIComponent(fields) +
+        '&q=' + encodeURIComponent("'" + folder.getId() + "' in parents and trashed=false and (" + mime + ')') +
+        (page ? '&pageToken=' + encodeURIComponent(page) : '');
+      const r = JSON.parse(UrlFetchApp.fetch(url, { headers: auth }).getContentText());
+      (r.files || []).forEach(function (f) {
+        const m = f.imageMediaMetadata || {};
+        const swap = (m.rotation || 0) % 2 === 1; // صور مقلوبة 90 درجة
+        out.push({
+          id: f.id, name: f.name, date: Date.parse(f.createdTime), folder: name,
+          w: (swap ? m.height : m.width) || 0, h: (swap ? m.width : m.height) || 0, // لحفظ نسبة الصورة
+        });
+      });
+      page = r.nextPageToken || '';
+    } while (page);
     const subs = folder.getFolders();
     while (subs.hasNext()) { const s = subs.next(); walk(s, s.getName()); }
   })(DriveApp.getFolderById(P.getProperty('FOLDER_ID')), '');
@@ -116,18 +128,17 @@ function getImage_(id, kind) {
   const f = DriveApp.getFileById(id);
   if (!inRoot_(f) || MIMES.indexOf(f.getMimeType()) === -1) return { error: 'notfound' };
 
+  // thumb: مصغّرة 500px للمعرض ، full: نسخة 1600px بدل الأصل الضخم
+  const auth = { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() };
+  const meta = JSON.parse(UrlFetchApp.fetch(
+    'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(id) + '?fields=thumbnailLink',
+    { headers: auth }).getContentText());
   let blob;
-  if (kind === 'thumb') {
-    blob = f.getThumbnail(); // مصغّرة صغيرة وسريعة للشبكة
+  if (meta.thumbnailLink) {
+    blob = UrlFetchApp.fetch(meta.thumbnailLink.replace(/=s\d+$/, '=s' + (kind === 'thumb' ? 500 : 1600)),
+      { headers: auth }).getBlob();
   } else {
-    // نسخة بعرض 1600px بدل الأصل الضخم
-    const auth = { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() };
-    const meta = JSON.parse(UrlFetchApp.fetch(
-      'https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(id) + '?fields=thumbnailLink',
-      { headers: auth }).getContentText());
-    blob = meta.thumbnailLink
-      ? UrlFetchApp.fetch(meta.thumbnailLink.replace(/=s\d+$/, '=s1600'), { headers: auth }).getBlob()
-      : f.getBlob();
+    blob = kind === 'thumb' ? f.getThumbnail() : f.getBlob();
   }
   if (!blob) return { error: 'notfound' };
   return { src: 'data:' + blob.getContentType() + ';base64,' + Utilities.base64Encode(blob.getBytes()) };
