@@ -142,6 +142,7 @@
   // ---------- Lightbox ----------
   async function openLb(i) {
     cur = i;
+    $("lbCount").textContent = (i + 1) + " / " + photos.length;
     show("lb", true);
     document.body.style.overflow = "hidden";
     const im = $("lbImg");
@@ -179,6 +180,13 @@
       if (e.key === "Escape") closeLb();
       if (e.key === "ArrowLeft") go(1);   // الواجهة RTL: اليسار = التالية
       if (e.key === "ArrowRight") go(-1);
+    });
+
+    let x0 = 0; // السحب على الهاتف: يسارًا = التالية
+    $("lb").addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    $("lb").addEventListener("touchend", (e) => {
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
     });
 
     if (!window.google) return showLogin(MSG.login);

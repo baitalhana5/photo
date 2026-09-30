@@ -6,30 +6,41 @@
 <meta name="robots" content="noindex,nofollow">
 <title>بيت الهنا</title>
 <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
 <!-- شاشة الدخول -->
 <section id="login" class="hidden">
-  <h1>بيت الهنا ❤️</h1>
-  <p>صور عائلتنا، لأفراد العائلة فقط.</p>
-  <div id="gbtn"></div>
-  <p id="loginMsg" class="msg" role="alert"></p>
+  <div class="card">
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M10 31 32 12l22 19v21a4 4 0 0 1-4 4H14a4 4 0 0 1-4-4z" fill="#2d7a68"/>
+      <path d="M32 47S22 41 22 34.500a5.200 5.200 0 0 1 10-2 5.200 5.200 0 0 1 10 2C42 41 32 47 32 47z" fill="#f4c15d"/>
+    </svg>
+    <h1>بيت الهنا</h1>
+    <p class="sub">ذكريات العائلة في مكان واحد</p>
+    <div id="gbtn"></div>
+    <p id="loginMsg" class="msg" role="alert"></p>
+    <p class="hint">🔒 الدخول لأفراد العائلة المسموح لهم فقط</p>
+  </div>
 </section>
 
 <!-- المعرض -->
 <section id="app" class="hidden">
   <header>
-    <h1>عائلتنا ❤️</h1>
+    <div class="brand">🏡 عائلتنا ❤️</div>
     <div class="user">
       <img id="avatar" alt="" referrerpolicy="no-referrer" hidden>
-      <span>مرحبًا، <b id="uname"></b></span>
       <button id="logout" type="button">تسجيل الخروج</button>
     </div>
   </header>
   <main>
-    <h2>📷 صور العائلة</h2>
+    <div class="hello">
+      <h2>مرحبًا، <span id="uname"></span> 👋</h2>
+      <p>📷 صور العائلة</p>
+    </div>
     <div id="status" class="msg" role="status"></div>
     <div id="grid"></div>
   </main>
@@ -40,6 +51,7 @@
   <button id="lbClose" type="button" aria-label="إغلاق">✕</button>
   <button id="prev" type="button" aria-label="السابقة">›</button>
   <button id="next" type="button" aria-label="التالية">‹</button>
+  <span id="lbCount"></span>
   <img id="lbImg" alt="">
   <div id="lbSpin" class="spin hidden"></div>
   <p id="lbErr" class="msg hidden">تعذّر تحميل هذه الصورة.</p>
